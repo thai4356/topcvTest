@@ -1,119 +1,372 @@
 {
   "info": {
+    "_postman_id": "92a45174-1c6f-4148-b239-aefae8a86148",
     "name": "Form Management API",
-    "_postman_id": "bfb0d2a0-0000-4000-8000-000000000000",
     "description": "Postman collection for the Form Management API (local: http://localhost:8080)",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "42426055",
+    "_collection_link": "https://go.postman.co/collection/42426055-92a45174-1c6f-4148-b239-aefae8a86148?source=collection_link"
   },
   "item": [
     {
-      "name": "Get Forms (paged)",
-      "request": {
-        "method": "GET",
-        "header": [
-          { "key": "Accept", "value": "application/json" }
-        ],
-        "url": { "raw": "{{baseUrl}}/api/forms?page=0&size=10", "host": ["{{baseUrl}}"], "path": ["api","forms"], "query": [{"key":"page","value":"0"},{"key":"size","value":"10"}] }
-      }
-    },
-    {
-      "name": "Get Active Forms (details)",
-      "request": {
-        "method": "GET",
-        "header": [ { "key": "Accept", "value": "application/json" } ],
-        "url": { "raw": "{{baseUrl}}/api/forms/active", "host": ["{{baseUrl}}"], "path": ["api","forms","active"] }
-      }
-    },
-    {
-      "name": "Create Form",
-      "request": {
-        "method": "POST",
-        "header": [ { "key": "Content-Type", "value": "application/json" } ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"title\": \"Sample Form\",\n  \"description\": \"Example form created from Postman\",\n  \"displayOrder\": 1,\n  \"status\": \"ACTIVE\",\n  \"fields\": [\n    { \"label\": \"Full Name\", \"type\": \"TEXT\", \"displayOrder\": 1, \"required\": true },\n    { \"label\": \"Age\", \"type\": \"NUMBER\", \"displayOrder\": 2, \"required\": false },\n    { \"label\": \"Favorite Color\", \"type\": \"COLOR\", \"displayOrder\": 3, \"required\": false }\n  ]\n}"
+      "name": "Form",
+      "item": [
+        {
+          "name": "Get Forms (paged)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/forms?page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "forms"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
         },
-        "url": { "raw": "{{baseUrl}}/api/forms", "host": ["{{baseUrl}}"], "path": ["api","forms"] }
-      }
+        {
+          "name": "Create Form",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Form 1\",\n    \"description\": \"First test form\",\n    \"displayOrder\": 1,\n    \"status\": \"ACTIVE\",\n    \"fields\": [\n        {\n            \"label\": \"Full Name\",\n            \"type\": \"TEXT\",\n            \"displayOrder\": 1,\n            \"required\": true\n        },\n        {\n            \"label\": \"Age\",\n            \"type\": \"NUMBER\",\n            \"displayOrder\": 1,\n            \"required\": false\n        },\n        {\n            \"label\": \"Favorite Color\",\n            \"type\": \"COLOR\",\n            \"displayOrder\": 3,\n            \"required\": false\n        }\n    ]\n}\n"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/forms",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "forms"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Form by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/forms/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Form",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Form Name\",\n  \"description\": \"Updated description\",\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/forms/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Form",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/forms/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     },
     {
-      "name": "Get Form by ID",
-      "request": {
-        "method": "GET",
-        "header": [ { "key": "Accept", "value": "application/json" } ],
-        "url": { "raw": "{{baseUrl}}/api/forms/:id", "host": ["{{baseUrl}}"], "path": ["api","forms",":id"], "variable": [{"key":"id","value":"1"}] }
-      }
+      "name": "Field",
+      "item": [
+        {
+          "name": "Add Field to Form",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"Sex\",\n  \"type\": \"SELECT\",\n  \"required\": true,\n  \"displayOrder\":4,\n  \"optionsJson\": \"[\\\"Male\\\", \\\"Female\\\", \\\"Other\\\"]\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/forms/9/fields",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                "9",
+                "fields"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Field",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"Country of Residence\",\n  \"required\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/forms/:formId/fields/:fieldId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                ":formId",
+                "fields",
+                ":fieldId"
+              ],
+              "variable": [
+                {
+                  "key": "formId",
+                  "value": "1"
+                },
+                {
+                  "key": "fieldId",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Field",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/forms/:formId/fields/:fieldId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                ":formId",
+                "fields",
+                ":fieldId"
+              ],
+              "variable": [
+                {
+                  "key": "formId",
+                  "value": "1"
+                },
+                {
+                  "key": "fieldId",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     },
     {
-      "name": "Update Form",
-      "request": {
-        "method": "PUT",
-        "header": [ { "key": "Content-Type", "value": "application/json" } ],
-        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Updated Form Title\",\n  \"description\": \"Updated description\",\n  \"displayOrder\": 1,\n  \"status\": \"ACTIVE\"\n}" },
-        "url": { "raw": "{{baseUrl}}/api/forms/:id", "host": ["{{baseUrl}}"], "path": ["api","forms",":id"], "variable": [{"key":"id","value":"1"}] }
-      }
-    },
-    {
-      "name": "Delete Form",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": { "raw": "{{baseUrl}}/api/forms/:id", "host": ["{{baseUrl}}"], "path": ["api","forms",":id"], "variable": [{"key":"id","value":"1"}] }
-      }
-    },
-    {
-      "name": "Add Field to Form",
-      "request": {
-        "method": "POST",
-        "header": [ { "key": "Content-Type", "value": "application/json" } ],
-        "body": { "mode": "raw", "raw": "{\n  \"label\": \"Country\",\n  \"type\": \"SELECT\",\n  \"displayOrder\": 1,\n  \"required\": false,\n  \"optionsJson\": \"[\\\"US\\\", \\\"CA\\\", \\\"VN\\\"]\"\n}" },
-        "url": { "raw": "{{baseUrl}}/api/forms/:formId/fields", "host": ["{{baseUrl}}"], "path": ["api","forms",":formId","fields"], "variable": [{"key":"formId","value":"1"}] }
-      }
-    },
-    {
-      "name": "Update Field",
-      "request": {
-        "method": "PUT",
-        "header": [ { "key": "Content-Type", "value": "application/json" } ],
-        "body": { "mode": "raw", "raw": "{\n  \"label\": \"Country of Residence\",\n  \"type\": \"SELECT\",\n  \"displayOrder\": 1,\n  \"required\": true,\n  \"optionsJson\": \"[\\\"US\\\", \\\"CA\\\", \\\"VN\\\"]\"\n}" },
-        "url": { "raw": "{{baseUrl}}/api/forms/:formId/fields/:fieldId", "host": ["{{baseUrl}}"], "path": ["api","forms",":formId","fields",":fieldId"], "variable": [{"key":"formId","value":"1"},{"key":"fieldId","value":"2"}] }
-      }
-    },
-    {
-      "name": "Delete Field",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": { "raw": "{{baseUrl}}/api/forms/:formId/fields/:fieldId", "host": ["{{baseUrl}}"], "path": ["api","forms",":formId","fields",":fieldId"], "variable": [{"key":"formId","value":"1"},{"key":"fieldId","value":"2"}] }
-      }
-    },
-    {
-      "name": "Submit Form",
-      "request": {
-        "method": "POST",
-        "header": [ { "key": "Content-Type", "value": "application/json" } ],
-        "body": { "mode": "raw", "raw": "{\n  \"values\": {\n    \"1\": \"Nguyễn Văn A\",\n    \"2\": 30,\n    \"3\": \"#00A1FF\",\n    \"4\": \"VN\",\n    \"5\": \"Hà Nội\"\n  }\n}" },
-        "url": { "raw": "{{baseUrl}}/api/forms/:formId/submit", "host": ["{{baseUrl}}"], "path": ["api","forms",":formId","submit"], "variable": [{"key":"formId","value":"1"}] }
-      }
-    },
-    {
-      "name": "Get Submissions for Form",
-      "request": {
-        "method": "GET",
-        "header": [ { "key": "Accept", "value": "application/json" } ],
-        "url": { "raw": "{{baseUrl}}/api/forms/:formId/submissions", "host": ["{{baseUrl}}"], "path": ["api","forms",":formId","submissions"], "variable": [{"key":"formId","value":"1"}] }
-      }
-    },
-    {
-      "name": "Get All Submissions (optional filter)",
-      "request": {
-        "method": "GET",
-        "header": [ { "key": "Accept", "value": "application/json" } ],
-        "url": { "raw": "{{baseUrl}}/api/submissions?formId=1", "host": ["{{baseUrl}}"], "path": ["api","submissions"], "query": [{"key":"formId","value":"1"}] }
-      }
+      "name": "Submission",
+      "item": [
+        {
+          "name": "Get Active Forms",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/forms/active",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                "active"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Form",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"values\": {\n      \"1\": \"Nguyễn Văn A\",\n      \"2\": 30,\n      \"3\": \"#00A1FF\",\n      \"4\": \"VN\",\n      \"5\": \"Hà Nội\"\n    }\n  }"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/forms/:formId/submit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                ":formId",
+                "submit"
+              ],
+              "variable": [
+                {
+                  "key": "formId",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Submissions by form id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/forms/:formId/submissions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                ":formId",
+                "submissions"
+              ],
+              "variable": [
+                {
+                  "key": "formId",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    }
   ]
 }

@@ -93,74 +93,82 @@ ALTER TABLE submissions DROP COLUMN submitted_by;
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
 - OpenAPI JSON: `http://localhost:8080/v3/api-docs`
 
-## Hướng dẫn API (tóm tắt)
+## Hướng dẫn API (theo Postman collection)
 
 Base URL (local): `http://localhost:8080`
-### Enums
-- `FormStatus`: `ACTIVE`, `DRAFT`
-- `FieldType`: `TEXT`, `NUMBER`, `DATE`, `COLOR`, `SELECT`
-### Phân trang (Spring Data)
-Các API trả về `Page<...>` hỗ trợ query params:
-- `page` (mặc định 0)
-- `size` (mặc định 20)
-- `sort` (ví dụ: `sort=displayOrder,asc`)
 
-### Định dạng lỗi chung
-```json
-{
-	"message": "Validation failed",
-	"field": "title",
-	"error": "title is required"
-}
-```
+Collection trong `postman/FormManagement.postman_collection.json` tổ chức theo 3 nhóm: `Form`, `Field`, `Submission`. Dưới đây là mô tả nhanh từng endpoint kèm payload mẫu (dựa trên collection).
 
-### Endpoints chính
+---
 
-- `GET /api/forms` (paged) — danh sách forms (tóm tắt)
-- `GET /api/forms/active` — trả về danh sách forms **chi tiết** (kèm `fields`)
-- `GET /api/forms/{id}` — chi tiết 1 form
+Nhóm: Form
+
+- `GET /api/forms?page={page}&size={size}` — lấy danh sách (paged)
+	- Ví dụ: `GET /api/forms?page=0&size=10`
+
 - `POST /api/forms` — tạo form
-- `PUT /api/forms/{id}` — cập nhật form
-- `DELETE /api/forms/{id}` — xóa form
-
-- `POST /api/forms/{formId}/fields` — thêm field
-- `PUT /api/forms/{formId}/fields/{fieldId}` — cập nhật field
-- `DELETE /api/forms/{formId}/fields/{fieldId}` — xóa field
-
-- `POST /api/forms/{formId}/submit` — nộp form
-- `GET /api/forms/{formId}/submissions` — lấy submission của 1 form (paged)
-- `GET /api/submissions?formId={formId}` — lấy tất cả submissions (có thể filter theo formId)
-
-### Payload mẫu & rules
-
-1) Tạo/Update Form (`FormUpsertRequest`):
+	- Payload mẫu:
 
 ```json
 {
-	"title": "Registration Form",
-	"description": "Example form",
+	"title": "Form 1",
+	"description": "First test form",
 	"displayOrder": 1,
 	"status": "ACTIVE",
 	"fields": [
 		{"label":"Full Name","type":"TEXT","displayOrder":1,"required":true},
-		{"label":"Age","type":"NUMBER","displayOrder":2,"required":false}
+		{"label":"Age","type":"NUMBER","displayOrder":2,"required":false},
+		{"label":"Favorite Color","type":"COLOR","displayOrder":3,"required":false}
 	]
 }
 ```
 
-2) Thêm/Update Field (`FormFieldUpsertRequest`):
+- `GET /api/forms/{id}` — lấy chi tiết form (kèm `fields`)
+
+- `PUT /api/forms/{id}` — cập nhật form
+	- Payload mẫu (phải bao gồm `title`/`displayOrder`/`status`/`fields` nếu muốn cập nhật fields):
 
 ```json
 {
-	"label": "Country",
-	"type": "SELECT",
-	"displayOrder": 3,
-	"required": false,
-	"optionsJson": "[\"US\", \"CA\", \"VN\"]"
+	"title": "Updated Form Title",
+	"description": "Updated description",
+	"displayOrder": 1,
+	"status": "ACTIVE",
+	"fields": [ /* ... */ ]
 }
 ```
 
-3) Submit form (`SubmitFormRequest`) — lưu ý: body chỉ còn `values` (map key là `fieldId` dạng string):
+- `DELETE /api/forms/{id}` — xóa form
+
+---
+
+Nhóm: Field
+
+- `POST /api/forms/{formId}/fields` — thêm field vào form `formId`
+	- Payload mẫu:
+
+```json
+{
+	"label": "Sex",
+	"type": "SELECT",
+	"required": true,
+	"displayOrder": 4,
+	"optionsJson": "[\"Male\", \"Female\", \"Other\"]"
+}
+```
+
+- `PUT /api/forms/{formId}/fields/{fieldId}` — cập nhật field (gửi đủ các field bắt buộc)
+
+- `DELETE /api/forms/{formId}/fields/{fieldId}` — xóa field
+
+---
+
+Nhóm: Submission
+
+- `GET /api/forms/active` — lấy danh sách form active (chi tiết kèm fields)
+
+- `POST /api/forms/{formId}/submit` — submit một form
+	- Collection dùng ví dụ submit cho `formId=1` với payload:
 
 ```json
 {
@@ -173,22 +181,7 @@ Các API trả về `Page<...>` hỗ trợ query params:
 	}
 }
 ```
-
-Quy tắc validate theo `FieldType`:
-
-- `TEXT`: chuỗi, tối đa 200 ký tự
-- `NUMBER`: số trong khoảng 0..100
-- `DATE`: ISO `yyyy-MM-dd`, không được ở quá khứ
-- `COLOR`: HEX `#RRGGBB` (ví dụ `#00A1FF`)
-- `SELECT`: phải là 1 trong các giá trị trong `optionsJson`
-
-Ghi chú:
-
-- Key trong `values` phải là `fieldId` theo form (dạng string). Ví dụ: `"1"`.
-- Field `required=true` bắt buộc có giá trị (không null/chuỗi rỗng).
-- Nếu `values` chứa fieldId không thuộc form → API trả 400 (Unknown field id...).
-
-Ví dụ submit cho `formId=1` (theo cấu trúc form bạn cung cấp):
+	- Curl tương đương:
 
 ```bash
 curl -X POST "http://localhost:8080/api/forms/1/submit" \
@@ -203,6 +196,28 @@ curl -X POST "http://localhost:8080/api/forms/1/submit" \
 		}
 	}'
 ```
+
+- `GET /api/forms/{formId}/submissions` — lấy submissions của form (paged)
+- `GET /api/submissions?formId={formId}` — lấy submissions (tuỳ chọn filter formId)
+
+---
+
+Validation rules (tóm tắt):
+
+- `TEXT`: chuỗi ≤ 200 ký tự (field `required=true` bắt buộc)
+- `NUMBER`: số giữa 0..100
+- `DATE`: `yyyy-MM-dd`, không được ở quá khứ
+- `COLOR`: `#RRGGBB`
+- `SELECT`: phải là một giá trị trong `optionsJson`
+
+Lưu ý: `values` là map với key là `fieldId` (dạng string). Nếu gửi fieldId không thuộc form thì API trả 400.
+
+---
+
+Import collection vào Postman: mở Postman → Import → chọn file `postman/FormManagement.postman_collection.json`.
+
+---
+
 
 ## Postman
 
