@@ -17,7 +17,7 @@
       }
     },
     {
-      "name": "Get Active Forms",
+      "name": "Get Active Forms (details)",
       "request": {
         "method": "GET",
         "header": [ { "key": "Accept", "value": "application/json" } ],
@@ -31,7 +31,7 @@
         "header": [ { "key": "Content-Type", "value": "application/json" } ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"name\": \"Sample Form\",\n  \"description\": \"Example form created from Postman\",\n  \"status\": \"ACTIVE\",\n  \"fields\": [\n    { \"label\": \"Full Name\", \"type\": \"TEXT\", \"required\": true },\n    { \"label\": \"Age\", \"type\": \"NUMBER\", \"required\": false },\n    { \"label\": \"Favorite Color\", \"type\": \"COLOR\", \"required\": false }\n  ]\n}"
+          "raw": "{\n  \"title\": \"Sample Form\",\n  \"description\": \"Example form created from Postman\",\n  \"displayOrder\": 1,\n  \"status\": \"ACTIVE\",\n  \"fields\": [\n    { \"label\": \"Full Name\", \"type\": \"TEXT\", \"displayOrder\": 1, \"required\": true },\n    { \"label\": \"Age\", \"type\": \"NUMBER\", \"displayOrder\": 2, \"required\": false },\n    { \"label\": \"Favorite Color\", \"type\": \"COLOR\", \"displayOrder\": 3, \"required\": false }\n  ]\n}"
         },
         "url": { "raw": "{{baseUrl}}/api/forms", "host": ["{{baseUrl}}"], "path": ["api","forms"] }
       }
@@ -49,7 +49,7 @@
       "request": {
         "method": "PUT",
         "header": [ { "key": "Content-Type", "value": "application/json" } ],
-        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Form Name\",\n  \"description\": \"Updated description\",\n  \"status\": \"ACTIVE\"\n}" },
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Updated Form Title\",\n  \"description\": \"Updated description\",\n  \"displayOrder\": 1,\n  \"status\": \"ACTIVE\"\n}" },
         "url": { "raw": "{{baseUrl}}/api/forms/:id", "host": ["{{baseUrl}}"], "path": ["api","forms",":id"], "variable": [{"key":"id","value":"1"}] }
       }
     },
@@ -66,7 +66,7 @@
       "request": {
         "method": "POST",
         "header": [ { "key": "Content-Type", "value": "application/json" } ],
-        "body": { "mode": "raw", "raw": "{\n  \"label\": \"Country\",\n  \"type\": \"SELECT\",\n  \"required\": false,\n  \"optionsJson\": \"[\\\"US\\\", \\\"CA\\\", \\\"VN\\\"]\"\n}" },
+        "body": { "mode": "raw", "raw": "{\n  \"label\": \"Country\",\n  \"type\": \"SELECT\",\n  \"displayOrder\": 1,\n  \"required\": false,\n  \"optionsJson\": \"[\\\"US\\\", \\\"CA\\\", \\\"VN\\\"]\"\n}" },
         "url": { "raw": "{{baseUrl}}/api/forms/:formId/fields", "host": ["{{baseUrl}}"], "path": ["api","forms",":formId","fields"], "variable": [{"key":"formId","value":"1"}] }
       }
     },
@@ -75,7 +75,7 @@
       "request": {
         "method": "PUT",
         "header": [ { "key": "Content-Type", "value": "application/json" } ],
-        "body": { "mode": "raw", "raw": "{\n  \"label\": \"Country of Residence\",\n  \"required\": true\n}" },
+        "body": { "mode": "raw", "raw": "{\n  \"label\": \"Country of Residence\",\n  \"type\": \"SELECT\",\n  \"displayOrder\": 1,\n  \"required\": true,\n  \"optionsJson\": \"[\\\"US\\\", \\\"CA\\\", \\\"VN\\\"]\"\n}" },
         "url": { "raw": "{{baseUrl}}/api/forms/:formId/fields/:fieldId", "host": ["{{baseUrl}}"], "path": ["api","forms",":formId","fields",":fieldId"], "variable": [{"key":"formId","value":"1"},{"key":"fieldId","value":"2"}] }
       }
     },
@@ -92,7 +92,7 @@
       "request": {
         "method": "POST",
         "header": [ { "key": "Content-Type", "value": "application/json" } ],
-        "body": { "mode": "raw", "raw": "{\n  \"values\": [\n    { \"fieldId\": 1, \"value\": \"Nguyễn Văn A\" },\n    { \"fieldId\": 2, \"value\": 30 }\n  ]\n}" },
+        "body": { "mode": "raw", "raw": "{\n  \"submittedBy\": \"admin\",\n  \"values\": {\n    \"1\": \"Nguyễn Văn A\",\n    \"2\": 30\n  }\n}" },
         "url": { "raw": "{{baseUrl}}/api/forms/:formId/submit", "host": ["{{baseUrl}}"], "path": ["api","forms",":formId","submit"], "variable": [{"key":"formId","value":"1"}] }
       }
     },

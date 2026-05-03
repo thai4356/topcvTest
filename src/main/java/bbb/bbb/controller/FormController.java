@@ -12,6 +12,7 @@ import bbb.bbb.service.FormService;
 import bbb.bbb.service.SubmissionService;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -45,7 +46,7 @@ public class FormController {
     }
 
     @GetMapping("/active")
-    public List<FormListItemResponse> getActiveForms() {
+    public List<FormDetailResponse> getActiveForms() {
         return formService.getActiveForms();
     }
 
@@ -83,9 +84,9 @@ public class FormController {
     }
 
     @DeleteMapping("/{formId}/fields/{fieldId}")
-    public ResponseEntity<Void> deleteField(@PathVariable Long formId, @PathVariable Long fieldId) {
+    public ResponseEntity<Map<String, String>> deleteField(@PathVariable Long formId, @PathVariable Long fieldId) {
         formFieldService.deleteField(formId, fieldId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(Map.of("message", "deleted"));
     }
 
     @PostMapping("/{id}/submit")

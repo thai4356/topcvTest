@@ -1,7 +1,10 @@
 package bbb.bbb.service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.data.domain.Page;
@@ -54,18 +57,25 @@ public class FormService {
     }
 
     @Transactional(readOnly = true)
-    public List<FormListItemResponse> getActiveForms() {
-        return formRepository.findAllByStatusOrderByDisplayOrderAscIdAsc(FormStatus.ACTIVE)
-                .stream()
-                .map(form -> new FormListItemResponse(
-                        form.getId(),
-                        form.getTitle(),
-                        form.getDescription(),
-                        form.getDisplayOrder(),
-                        form.getStatus(),
-                        form.getCreatedAt(),
-                        form.getUpdatedAt(),
-                        form.getFields() == null ? 0 : form.getFields().size()))
+    public List<FormDetailResponse> getActiveForms() {
+        List<Form> forms = formRepository.findAllByStatusOrderByDisplayOrderAscIdAsc(FormStatus.ACTIVE);
+        if (forms.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> formIds = forms.stream().map(Form::getId).toList();
+        List<FormField> allFields = formFieldRepository.findAllByFormIdInOrderByFormIdAscDisplayOrderAscIdAsc(formIds);
+        Map<Long, List<FormField>> fieldsByFormId = new LinkedHashMap<>();
+        for (FormField field : allFields) {
+            Long formId = field.getForm() == null ? null : field.getForm().getId();
+            if (formId == null) {
+                continue;
+            }
+            fieldsByFormId.computeIfAbsent(formId, ignored -> new ArrayList<>()).add(field);
+        }
+
+        return forms.stream()
+                .map(form -> toDetailResponse(form, fieldsByFormId.getOrDefault(form.getId(), List.of())))
                 .toList();
     }
 
@@ -82,12 +92,18 @@ public class FormService {
         applyRequest(form, request);
         // ensure displayOrder is unique across forms
         if (request.displayOrder() != null) {
-            formRepository.findByDisplayOrder(request.displayOrder()).ifPresent(existing -> {
-                throw new FieldValidationException("displayOrder", "displayOrder must be unique");
-            });
+            try {
+                var existingOpt = formRepository.findByDisplayOrder(request.displayOrder());
+                if (existingOpt.isPresent()) {
+                    throw new FieldValidationException("displayOrder", "display order has been taken please choose other");
+                }
+            } catch (Exception ex) {
+                throw new FieldValidationException("displayOrder", "display order has been taken please choose other");
+            }
         }
         Form saved = formRepository.save(form);
-        return toDetailResponse(saved, List.of());
+        List<FormField> fields = formFieldRepository.findAllByFormIdOrderByDisplayOrderAscIdAsc(saved.getId());
+        return toDetailResponse(saved, fields);
     }
 
     @Transactional
@@ -96,11 +112,14 @@ public class FormService {
         applyRequest(form, request);
         // ensure displayOrder is unique across forms (allow keeping same id)
         if (request.displayOrder() != null) {
-            formRepository.findByDisplayOrder(request.displayOrder()).ifPresent(existing -> {
-                if (!existing.getId().equals(id)) {
-                    throw new FieldValidationException("displayOrder", "displayOrder must be unique");
+            try {
+                var existingOpt = formRepository.findByDisplayOrder(request.displayOrder());
+                if (existingOpt.isPresent() && !existingOpt.get().getId().equals(id)) {
+                    throw new FieldValidationException("displayOrder", "display order has been taken please choose other");
                 }
-            });
+            } catch (Exception ex) {
+                throw new FieldValidationException("displayOrder", "display order has been taken please choose other");
+            }
         }
         Form saved = formRepository.save(form);
         List<FormField> fields = formFieldRepository.findAllByFormIdOrderByDisplayOrderAscIdAsc(id);

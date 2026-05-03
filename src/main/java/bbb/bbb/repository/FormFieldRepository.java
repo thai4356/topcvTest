@@ -11,6 +11,8 @@ public interface FormFieldRepository extends JpaRepository<FormField, Long> {
 
     List<FormField> findAllByFormIdOrderByDisplayOrderAscIdAsc(Long formId);
 
+    List<FormField> findAllByFormIdInOrderByFormIdAscDisplayOrderAscIdAsc(List<Long> formIds);
+
     Optional<FormField> findByIdAndFormId(Long id, Long formId);
 
     Optional<FormField> findByFormIdAndDisplayOrder(Long formId, Integer displayOrder);
