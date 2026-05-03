@@ -53,7 +53,6 @@ public class SubmissionService {
         Map<String, Object> submittedValues = new LinkedHashMap<>(request.values());
         Submission submission = new Submission();
         submission.setForm(form);
-        submission.setSubmittedBy(request.submittedBy().trim());
 
         List<SubmissionValue> values = new ArrayList<>();
         for (FormField field : fields) {
@@ -103,7 +102,6 @@ public class SubmissionService {
                 submission.getId(),
                 submission.getForm().getId(),
                 submission.getForm().getTitle(),
-                submission.getSubmittedBy(),
                 submission.getCreatedAt(),
                 values);
     }

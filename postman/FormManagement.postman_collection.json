@@ -92,7 +92,7 @@
       "request": {
         "method": "POST",
         "header": [ { "key": "Content-Type", "value": "application/json" } ],
-        "body": { "mode": "raw", "raw": "{\n  \"submittedBy\": \"admin\",\n  \"values\": {\n    \"1\": \"Nguyễn Văn A\",\n    \"2\": 30\n  }\n}" },
+        "body": { "mode": "raw", "raw": "{\n  \"values\": {\n    \"1\": \"Nguyễn Văn A\",\n    \"2\": 30,\n    \"3\": \"#00A1FF\",\n    \"4\": \"VN\",\n    \"5\": \"Hà Nội\"\n  }\n}" },
         "url": { "raw": "{{baseUrl}}/api/forms/:formId/submit", "host": ["{{baseUrl}}"], "path": ["api","forms",":formId","submit"], "variable": [{"key":"formId","value":"1"}] }
       }
     },

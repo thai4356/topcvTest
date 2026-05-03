@@ -7,7 +7,6 @@ public record SubmissionResponse(
         Long id,
         Long formId,
         String formTitle,
-        String submittedBy,
         Instant createdAt,
         List<SubmissionValueResponse> values) {
 }

@@ -1,35 +1,39 @@
 # BBB (Form Management API)
 
-Dự án Spring Boot (Java 21) cung cấp API quản lý Form/Submission, dùng MySQL và có Swagger UI.
+Dự án Spring Boot (Java 21) cung cấp REST API để quản lý Form, Field và Submission.
+
+Mục tiêu README này: hướng dẫn cài đặt, chạy nhanh (Docker / local), và mô tả API (endpoints, payload mẫu, lỗi thường gặp).
 
 ## Yêu cầu
 
-- Java **21**
-- (Tuỳ chọn) Docker + Docker Compose (để chạy MySQL + app nhanh)
+- Java 21 (JDK 21)
+- Maven (nếu không dùng `mvnw`) hoặc dùng `mvnw` có sẵn trong repo
+- (Tuỳ chọn) Docker & Docker Compose để chạy MySQL + app nhanh
 
 ## Cấu hình
 
-App đọc cấu hình DB qua biến môi trường (có giá trị mặc định trong `src/main/resources/application.properties`):
+Ứng dụng đọc một số cấu hình từ biến môi trường (có giá trị mặc định trong `src/main/resources/application.properties`):
 
-- `SPRING_DATASOURCE_URL` (mặc định: `jdbc:mysql://localhost:3306/form_management?...`)
-- `SPRING_DATASOURCE_USERNAME` (mặc định: `root`)
-- `SPRING_DATASOURCE_PASSWORD` (mặc định: `root`)
-- `SPRING_JPA_HIBERNATE_DDL_AUTO` (mặc định: `update`)
-- `SERVER_PORT` (mặc định: `8080`)
+- `SPRING_DATASOURCE_URL` — kết nối JDBC (mặc định: `jdbc:mysql://localhost:3306/form_management?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC`)
+- `SPRING_DATASOURCE_USERNAME` — (mặc định: `root`)
+- `SPRING_DATASOURCE_PASSWORD` — (mặc định: `root`)
+- `SPRING_JPA_HIBERNATE_DDL_AUTO` — (mặc định: `update`)
+- `SERVER_PORT` — (mặc định: `8080`)
 
 ## Chạy bằng Docker Compose (khuyến nghị)
 
-Chạy MySQL và ứng dụng bằng container:
+1. Khởi động MySQL và app:
 
 ```bash
 docker compose up --build
 ```
 
-Mặc định:
-- MySQL: `localhost:3306` (root/password), database `form_management`
+2. Mặc định:
+
+- MySQL: `localhost:3306` (root/password: `password` theo `docker-compose.yml`)
 - App: `http://localhost:8080`
 
-Tắt containers:
+3. Dừng/Remove:
 
 ```bash
 docker compose down
@@ -37,19 +41,15 @@ docker compose down
 
 ## Chạy local (không dùng Docker)
 
-### 1) Chuẩn bị MySQL
-
-Bạn cần MySQL đang chạy và có database `form_management`.
-
-Ví dụ tạo DB:
+1) Tạo database MySQL (nếu chưa có):
 
 ```sql
 CREATE DATABASE form_management;
 ```
 
-### 2) Cấu hình biến môi trường (nếu cần)
+2) Thiết lập biến môi trường (Windows examples):
 
-**CMD (Windows):**
+CMD:
 
 ```bat
 set SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/form_management?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
@@ -57,7 +57,7 @@ set SPRING_DATASOURCE_USERNAME=root
 set SPRING_DATASOURCE_PASSWORD=root
 ```
 
-**PowerShell (Windows):**
+PowerShell:
 
 ```powershell
 $env:SPRING_DATASOURCE_URL='jdbc:mysql://localhost:3306/form_management?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC'
@@ -65,17 +65,27 @@ $env:SPRING_DATASOURCE_USERNAME='root'
 $env:SPRING_DATASOURCE_PASSWORD='root'
 ```
 
-### 3) Chạy app bằng Maven Wrapper
+3) Chạy ứng dụng bằng Maven Wrapper:
 
 ```bat
 .\mvnw.cmd spring-boot:run
 ```
 
-Hoặc build jar và chạy:
+Hoặc build jar rồi chạy:
 
 ```bat
 .\mvnw.cmd -DskipTests clean package
 java -jar target\bbb-0.0.1-SNAPSHOT.jar
+```
+
+## Ghi chú về schema và migration
+
+Lưu ý: trước đây `submissions` có cột `submitted_by`. Repository hiện tại đã loại bỏ trường `submittedBy` khỏi entity. Để tránh lỗi khi DB cũ vẫn có cột này, ứng dụng có `SchemaMigrationRunner` sẽ cố gắng drop cột `submitted_by` khi khởi động nếu có quyền `ALTER TABLE`.
+
+Nếu DB không cho phép thay đổi schema tự động, bạn có thể chạy thủ công:
+
+```sql
+ALTER TABLE submissions DROP COLUMN submitted_by;
 ```
 
 ## Kiểm tra nhanh
@@ -83,31 +93,19 @@ java -jar target\bbb-0.0.1-SNAPSHOT.jar
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
 - OpenAPI JSON: `http://localhost:8080/v3/api-docs`
 
-## Hướng dẫn API
+## Hướng dẫn API (tóm tắt)
 
 Base URL (local): `http://localhost:8080`
-
-### Enum giá trị
-
+### Enums
 - `FormStatus`: `ACTIVE`, `DRAFT`
 - `FieldType`: `TEXT`, `NUMBER`, `DATE`, `COLOR`, `SELECT`
-
 ### Phân trang (Spring Data)
-
 Các API trả về `Page<...>` hỗ trợ query params:
-
 - `page` (mặc định 0)
 - `size` (mặc định 20)
-- `sort` (vd: `sort=displayOrder,asc`)
+- `sort` (ví dụ: `sort=displayOrder,asc`)
 
-Ví dụ:
-
-`GET /api/forms?page=0&size=10&sort=displayOrder,asc`
-
-### Lỗi trả về
-
-Khi lỗi (400/404/500) API trả về dạng:
-
+### Định dạng lỗi chung
 ```json
 {
 	"message": "Validation failed",
@@ -116,73 +114,99 @@ Khi lỗi (400/404/500) API trả về dạng:
 }
 ```
 
-### Forms
+### Endpoints chính
 
-- `GET /api/forms` (paged)
-- `GET /api/forms/active` (trả về chi tiết form + danh sách fields)
-- `POST /api/forms`
-- `GET /api/forms/{id}`
-- `PUT /api/forms/{id}`
-- `DELETE /api/forms/{id}`
+- `GET /api/forms` (paged) — danh sách forms (tóm tắt)
+- `GET /api/forms/active` — trả về danh sách forms **chi tiết** (kèm `fields`)
+- `GET /api/forms/{id}` — chi tiết 1 form
+- `POST /api/forms` — tạo form
+- `PUT /api/forms/{id}` — cập nhật form
+- `DELETE /api/forms/{id}` — xóa form
 
-Tạo form (ví dụ `curl`):
+- `POST /api/forms/{formId}/fields` — thêm field
+- `PUT /api/forms/{formId}/fields/{fieldId}` — cập nhật field
+- `DELETE /api/forms/{formId}/fields/{fieldId}` — xóa field
 
-```bash
-curl -X POST "http://localhost:8080/api/forms" \
-	-H "Content-Type: application/json" \
-	-d "{\
-		\"title\": \"Registration Form\",\
-		\"description\": \"Example form\",\
-		\"displayOrder\": 1,\
-		\"status\": \"ACTIVE\",\
-		\"fields\": [\
-			{\"label\":\"Full Name\",\"type\":\"TEXT\",\"displayOrder\":1,\"required\":true},\
-			{\"label\":\"Age\",\"type\":\"NUMBER\",\"displayOrder\":2,\"required\":false},\
-			{\"label\":\"Country\",\"type\":\"SELECT\",\"displayOrder\":3,\"required\":false,\"optionsJson\":\"[\\\"VN\\\",\\\"US\\\"]\"}\
-		]\
-	}"
+- `POST /api/forms/{formId}/submit` — nộp form
+- `GET /api/forms/{formId}/submissions` — lấy submission của 1 form (paged)
+- `GET /api/submissions?formId={formId}` — lấy tất cả submissions (có thể filter theo formId)
+
+### Payload mẫu & rules
+
+1) Tạo/Update Form (`FormUpsertRequest`):
+
+```json
+{
+	"title": "Registration Form",
+	"description": "Example form",
+	"displayOrder": 1,
+	"status": "ACTIVE",
+	"fields": [
+		{"label":"Full Name","type":"TEXT","displayOrder":1,"required":true},
+		{"label":"Age","type":"NUMBER","displayOrder":2,"required":false}
+	]
+}
 ```
 
+2) Thêm/Update Field (`FormFieldUpsertRequest`):
+
+```json
+{
+	"label": "Country",
+	"type": "SELECT",
+	"displayOrder": 3,
+	"required": false,
+	"optionsJson": "[\"US\", \"CA\", \"VN\"]"
+}
+```
+
+3) Submit form (`SubmitFormRequest`) — lưu ý: body chỉ còn `values` (map key là `fieldId` dạng string):
+
+```json
+{
+	"values": {
+		"1": "Nguyễn Văn A",
+		"2": 30,
+		"3": "#00A1FF",
+		"4": "VN",
+		"5": "Hà Nội"
+	}
+}
+```
+
+Quy tắc validate theo `FieldType`:
+
+- `TEXT`: chuỗi, tối đa 200 ký tự
+- `NUMBER`: số trong khoảng 0..100
+- `DATE`: ISO `yyyy-MM-dd`, không được ở quá khứ
+- `COLOR`: HEX `#RRGGBB` (ví dụ `#00A1FF`)
+- `SELECT`: phải là 1 trong các giá trị trong `optionsJson`
+
 Ghi chú:
-- `displayOrder` của form phải **unique**.
-- `fields[*].displayOrder` phải **unique** trong cùng 1 form.
 
-### Fields (trong 1 form)
+- Key trong `values` phải là `fieldId` theo form (dạng string). Ví dụ: `"1"`.
+- Field `required=true` bắt buộc có giá trị (không null/chuỗi rỗng).
+- Nếu `values` chứa fieldId không thuộc form → API trả 400 (Unknown field id...).
 
-- `POST /api/forms/{formId}/fields`
-- `PUT /api/forms/{formId}/fields/{fieldId}`
-- `DELETE /api/forms/{formId}/fields/{fieldId}`
-
-Update field lưu ý: request body là `FormFieldUpsertRequest` nên cần gửi đủ các field bắt buộc: `label`, `type`, `displayOrder`, `required` (không hỗ trợ partial update).
-
-### Submissions
-
-- `POST /api/forms/{formId}/submit`
-- `GET /api/forms/{formId}/submissions` (paged)
-- `GET /api/submissions?formId={formId}` (paged)
-
-Submit form:
-
-1) Lấy danh sách field id của form qua `GET /api/forms/{id}`
-2) Submit bằng map `values` với key là **fieldId dạng string**
-
-Ví dụ:
+Ví dụ submit cho `formId=1` (theo cấu trúc form bạn cung cấp):
 
 ```bash
 curl -X POST "http://localhost:8080/api/forms/1/submit" \
 	-H "Content-Type: application/json" \
-	-d "{\
-		\"submittedBy\": \"admin\",\
-		\"values\": {\
-			\"10\": \"Nguyễn Văn A\",\
-			\"11\": 30\
-		}\
-	}"
+	-d '{
+		"values": {
+			"1": "Nguyễn Văn A",
+			"2": 30,
+			"3": "#00A1FF",
+			"4": "VN",
+			"5": "Hà Nội"
+		}
+	}'
 ```
 
-Ghi chú:
-- Chỉ submit được khi form có `status=ACTIVE`.
-- Nếu `values` chứa fieldId không tồn tại trong form, API trả 400 (Unknown field id...).
+## Postman
+
+Collection đã được cập nhật và nằm tại: [postman/FormManagement.postman_collection.json](postman/FormManagement.postman_collection.json)
 
 ## Chạy test
 
@@ -190,6 +214,10 @@ Ghi chú:
 .\mvnw.cmd test
 ```
 
-## Postman
+## Troubleshooting nhanh
 
-Collection có sẵn tại: `postman/FormManagement.postman_collection.json`
+- Lỗi kết nối DB: kiểm tra `SPRING_DATASOURCE_URL` và MySQL đang chạy
+- Port 8080 bị chiếm: thay `SERVER_PORT` hoặc tắt ứng dụng đang chiếm
+- Nếu DB có cột `submitted_by` và app không có quyền `ALTER`: hãy drop cột thủ công (hoặc cấp quyền) bằng câu lệnh SQL ở phần "Ghi chú về schema và migration".
+
+
